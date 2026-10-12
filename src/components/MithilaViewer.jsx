@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
 import {
   ContactShadows,
+  Environment,
   Html,
   OrbitControls,
   useGLTF,
@@ -43,10 +44,6 @@ function LoadingLabel() {
 }
 
 export default function MithilaViewer({ modelPath }) {
-  const isTouchDevice =
-    typeof window !== 'undefined' &&
-    window.matchMedia('(pointer: coarse)').matches;
-
   return (
     <div className="model-viewer">
       <Canvas
@@ -56,34 +53,33 @@ export default function MithilaViewer({ modelPath }) {
             page in an up-to-date browser with WebGL enabled.
           </div>
         }
-        shadows={!isTouchDevice}
-        dpr={[1, isTouchDevice ? 1 : 1.5]}
+        shadows
+        dpr={[1, 2]}
         camera={{ position: [3.5, 2.5, 4.5], fov: 38 }}
-        gl={{ antialias: !isTouchDevice, alpha: false }}
+        gl={{ antialias: true, alpha: false }}
       >
         <color attach="background" args={['#e8e1d5']} />
         <ambientLight intensity={0.7} />
         <directionalLight
-          castShadow={!isTouchDevice}
+          castShadow
           position={[4, 6, 4]}
           intensity={2.1}
-          shadow-mapSize={[512, 512]}
+          shadow-mapSize={[1024, 1024]}
         />
         <directionalLight position={[-4, 2, -3]} intensity={0.75} />
 
         <Suspense fallback={<LoadingLabel />}>
           {modelPath ? <Model modelPath={modelPath} /> : <ModelPlaceholder />}
+          <Environment preset="studio" />
         </Suspense>
 
-        {!isTouchDevice && (
-          <ContactShadows
-            position={[0, -1.15, 0]}
-            opacity={0.35}
-            scale={8}
-            blur={2.5}
-            far={3}
-          />
-        )}
+        <ContactShadows
+          position={[0, -1.15, 0]}
+          opacity={0.35}
+          scale={8}
+          blur={2.5}
+          far={3}
+        />
         <OrbitControls
           makeDefault
           autoRotate
