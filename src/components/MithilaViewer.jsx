@@ -36,7 +36,7 @@ function ModelPlaceholder() {
 function LoadingLabel() {
   return (
     <Html center>
-      <span className="whitespace-nowrap rounded-full bg-paper/90 px-4 py-2 text-xs text-ink/70 shadow-sm">
+      <span className="viewer-loading">
         Preparing model…
       </span>
     </Html>
@@ -45,7 +45,7 @@ function LoadingLabel() {
 
 export default function MithilaViewer({ modelPath }) {
   return (
-    <div className="relative h-full min-h-[360px] overflow-hidden rounded-sm border border-ink/10 bg-[#e8e1d5]">
+    <div className="model-viewer">
       <Canvas
         shadows
         dpr={[1, 2]}
@@ -86,7 +86,7 @@ export default function MithilaViewer({ modelPath }) {
         />
       </Canvas>
       {!modelPath && (
-        <div className="pointer-events-none absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full border border-ink/10 bg-paper/80 px-4 py-2 text-center text-[11px] text-ink/60 backdrop-blur-sm">
+        <div className="viewer-placeholder-help">
           Add a GLB in public/models to show your SolidWorks export
         </div>
       )}

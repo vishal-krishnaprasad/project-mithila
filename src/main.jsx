@@ -1,10 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './App.jsx';
-import './index.css';
+import MithilaViewer from './components/MithilaViewer.jsx';
 
-ReactDOM.createRoot(document.getElementById('root')).render(
+ReactDOM.createRoot(document.getElementById('model-root')).render(
   <React.StrictMode>
-    <App />
+    <MithilaViewer />
   </React.StrictMode>,
 );

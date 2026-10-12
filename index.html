@@ -9,9 +9,928 @@
     />
     <meta name="theme-color" content="#f7f4ee" />
     <title>Mithila — Culture in Form</title>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600&display=swap');
+
+      :root {
+        font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+        color: #26231f;
+        background: #f7f4ee;
+        font-synthesis: none;
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        scroll-behavior: smooth;
+        --paper: #f7f4ee;
+        --ink: #26231f;
+        --muted: #625d55;
+        --vermilion: #b84932;
+        --display: 'Playfair Display', Georgia, serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        min-width: 320px;
+        margin: 0;
+      }
+
+      button,
+      a {
+        color: inherit;
+        font: inherit;
+      }
+
+      button {
+        cursor: pointer;
+      }
+
+      a {
+        text-decoration: none;
+      }
+
+      ::selection {
+        color: #fff;
+        background: var(--vermilion);
+      }
+
+      .site-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid rgb(38 35 31 / 10%);
+        padding: 20px 40px;
+      }
+
+      .brand,
+      h1,
+      h2,
+      h3,
+      .panel-title {
+        font-family: var(--display);
+      }
+
+      .brand {
+        font-size: 20px;
+        font-weight: 600;
+        letter-spacing: -0.04em;
+      }
+
+      .vermilion {
+        color: var(--vermilion);
+      }
+
+      .header-tagline,
+      .eyebrow,
+      .location,
+      .panel-label,
+      .panel-badge,
+      .panel-footer {
+        text-transform: uppercase;
+      }
+
+      .header-tagline {
+        color: rgb(38 35 31 / 55%);
+        font-size: 12px;
+        font-weight: 500;
+        letter-spacing: 0.22em;
+      }
+
+      .text-button {
+        border: 0;
+        padding: 4px 0;
+        background: transparent;
+        color: rgb(38 35 31 / 70%);
+        font-size: 14px;
+        font-weight: 500;
+      }
+
+      .text-button:hover,
+      .text-button:focus-visible {
+        color: var(--vermilion);
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+        width: min(100%, 1600px);
+        min-height: calc(100vh - 73px);
+        margin: 0 auto;
+      }
+
+      .about-section {
+        position: relative;
+        display: flex;
+        min-width: 0;
+        flex-direction: column;
+        justify-content: center;
+        overflow: hidden;
+        border-right: 1px solid rgb(38 35 31 / 10%);
+        padding: 56px;
+      }
+
+      .about-section::before,
+      .about-section::after {
+        position: absolute;
+        top: 50%;
+        left: -96px;
+        width: 384px;
+        height: 384px;
+        border: 1px solid rgb(184 73 50 / 10%);
+        border-radius: 50%;
+        content: '';
+        pointer-events: none;
+        transform: translateY(-50%);
+      }
+
+      .about-section::after {
+        left: -48px;
+        width: 288px;
+        height: 288px;
+      }
+
+      .about-heading {
+        position: relative;
+        z-index: 1;
+      }
+
+      .eyebrow {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 0 0 20px;
+        color: var(--vermilion);
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+      }
+
+      .eyebrow::before {
+        width: 32px;
+        height: 1px;
+        background: var(--vermilion);
+        content: '';
+      }
+
+      h1 {
+        max-width: 680px;
+        margin: 0;
+        font-size: clamp(48px, 5.3vw, 76px);
+        font-weight: 400;
+        letter-spacing: -0.045em;
+        line-height: 1.04;
+      }
+
+      .intro-copy {
+        max-width: 500px;
+        margin: 24px 0 0;
+        color: rgb(38 35 31 / 65%);
+        font-size: 17px;
+        line-height: 1.75;
+      }
+
+      .outline-button {
+        position: relative;
+        z-index: 1;
+        width: fit-content;
+        margin-top: 32px;
+        border: 1px solid rgb(38 35 31 / 20%);
+        border-radius: 999px;
+        padding: 12px 20px;
+        background: transparent;
+        font-size: 14px;
+        font-weight: 500;
+        transition: border-color 150ms ease, color 150ms ease;
+      }
+
+      .outline-button:hover,
+      .outline-button:focus-visible {
+        border-color: var(--vermilion);
+        color: var(--vermilion);
+      }
+
+      .location {
+        position: absolute;
+        bottom: 32px;
+        left: 56px;
+        color: rgb(38 35 31 / 45%);
+        font-size: 12px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+
+      .feature-panel {
+        display: flex;
+        min-width: 0;
+        min-height: 55vh;
+        flex-direction: column;
+        background: #eee9df;
+      }
+
+      .panel-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        width: 100%;
+        margin: 0 auto;
+        padding: 28px 48px 0;
+      }
+
+      .panel-label {
+        margin: 0;
+        color: rgb(38 35 31 / 50%);
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.18em;
+      }
+
+      .panel-title {
+        margin: 4px 0 0;
+        font-size: 18px;
+        font-weight: 400;
+      }
+
+      .panel-badge {
+        flex: 0 0 auto;
+        border: 1px solid rgb(38 35 31 / 15%);
+        border-radius: 999px;
+        padding: 6px 12px;
+        color: rgb(38 35 31 / 55%);
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 0.16em;
+      }
+
+      .panel-stage {
+        position: relative;
+        display: flex;
+        width: 100%;
+        min-height: 440px;
+        flex: 1;
+        align-items: center;
+        padding: 24px 48px;
+      }
+
+      .model-root {
+        position: relative;
+        width: 100%;
+        min-width: 0;
+        min-height: 360px;
+        flex: 1;
+      }
+
+      .model-viewer {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        border: 1px solid rgb(38 35 31 / 10%);
+        border-radius: 2px;
+        background: #e8e1d5;
+      }
+
+      .model-viewer canvas {
+        display: block;
+      }
+
+      .viewer-loading {
+        display: inline-block;
+        border-radius: 999px;
+        padding: 8px 16px;
+        background: rgb(247 244 238 / 90%);
+        box-shadow: 0 2px 8px rgb(38 35 31 / 10%);
+        color: rgb(38 35 31 / 70%);
+        font-size: 12px;
+        white-space: nowrap;
+      }
+
+      .viewer-placeholder-help {
+        position: absolute;
+        bottom: 16px;
+        left: 50%;
+        border: 1px solid rgb(38 35 31 / 10%);
+        border-radius: 999px;
+        padding: 8px 16px;
+        transform: translateX(-50%);
+        background: rgb(247 244 238 / 80%);
+        color: rgb(38 35 31 / 60%);
+        font-size: 11px;
+        text-align: center;
+        white-space: nowrap;
+        pointer-events: none;
+        backdrop-filter: blur(4px);
+      }
+
+      .model-load-error {
+        position: absolute;
+        inset: 16px;
+        display: grid;
+        place-items: center;
+        border: 1px dashed rgb(38 35 31 / 20%);
+        padding: 24px;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.7;
+        text-align: center;
+      }
+
+      .paper-reader {
+        display: flex;
+        width: 100%;
+        min-width: 0;
+        min-height: 360px;
+        max-height: 720px;
+        flex: 1;
+        flex-direction: column;
+        overflow: hidden;
+        border: 1px solid rgb(38 35 31 / 14%);
+        border-radius: 3px;
+        background: #d8d2c8;
+        box-shadow: 0 18px 45px rgb(38 35 31 / 12%);
+      }
+
+      .pdf-toolbar {
+        display: flex;
+        min-height: 48px;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        border-bottom: 1px solid rgb(38 35 31 / 12%);
+        padding: 0 18px;
+        background: #f1eee8;
+        color: rgb(38 35 31 / 65%);
+        font-size: 12px;
+      }
+
+      .pdf-file {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        font-weight: 600;
+      }
+
+      .pdf-icon {
+        border-radius: 3px;
+        padding: 4px 5px;
+        background: #a94335;
+        color: #fff;
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+      }
+
+      .pdf-page {
+        width: min(100% - 40px, 720px);
+        margin: 22px auto;
+        overflow-y: auto;
+        border: 1px solid rgb(38 35 31 / 10%);
+        padding: clamp(28px, 5vw, 64px);
+        background: #fffefa;
+        box-shadow: 0 3px 12px rgb(38 35 31 / 8%);
+      }
+
+      .paper-kicker {
+        margin: 0 0 14px;
+        color: var(--vermilion);
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+      }
+
+      .pdf-page h2 {
+        margin: 0;
+        font-family: var(--display);
+        font-size: clamp(28px, 3.2vw, 42px);
+        font-weight: 400;
+        letter-spacing: -0.035em;
+        line-height: 1.12;
+      }
+
+      .paper-byline {
+        margin: 14px 0 28px;
+        color: #716b62;
+        font-size: 12px;
+      }
+
+      .paper-section-title {
+        margin: 25px 0 8px;
+        font-family: var(--display);
+        font-size: 20px;
+        font-weight: 500;
+      }
+
+      .paper-page p {
+        margin: 0 0 14px;
+        color: #49453f;
+        font-family: Georgia, serif;
+        font-size: 14px;
+        line-height: 1.8;
+      }
+
+      .paper-page .paper-abstract {
+        border-left: 2px solid var(--vermilion);
+        padding-left: 16px;
+        font-size: 13px;
+      }
+
+      .story-section {
+        display: grid;
+        max-width: 1280px;
+        grid-template-columns: minmax(0, 0.7fr) minmax(0, 1.3fr);
+        gap: 48px;
+        margin: 0 auto;
+        padding: 80px 40px 96px;
+      }
+
+      .story-kicker {
+        margin: 0;
+        color: var(--vermilion);
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+      }
+
+      .story-heading {
+        max-width: 380px;
+        margin: 16px 0 0;
+        font-family: var(--display);
+        font-size: clamp(36px, 4vw, 52px);
+        font-weight: 400;
+        letter-spacing: -0.04em;
+        line-height: 1.1;
+      }
+
+      .story-notes {
+        display: grid;
+        gap: 16px;
+        margin: 36px 0 0;
+        border-top: 1px solid rgb(38 35 31 / 10%);
+        padding: 20px 0 0;
+        list-style: none;
+      }
+
+      .story-notes li {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        color: rgb(38 35 31 / 65%);
+        font-size: 14px;
+      }
+
+      .story-notes span {
+        color: var(--vermilion);
+        font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+        font-size: 12px;
+      }
+
+      .story-article {
+        max-width: 760px;
+      }
+
+      .story-article p {
+        margin: 0 0 22px;
+        color: #514c45;
+        font-size: 15px;
+        line-height: 1.9;
+      }
+
+      .story-article .lead {
+        font-size: 17px;
+      }
+
+      .story-article h3 {
+        margin: 30px 0 10px;
+        font-family: var(--display);
+        font-size: 25px;
+        font-weight: 400;
+        letter-spacing: -0.025em;
+      }
+
+      .story-article blockquote {
+        margin: 28px 0;
+        border-left: 3px solid var(--vermilion);
+        padding: 4px 0 4px 18px;
+        font-family: var(--display);
+        font-size: 22px;
+        line-height: 1.5;
+      }
+
+      .story-article code {
+        border-radius: 3px;
+        padding: 2px 4px;
+        background: #eee9df;
+        font-size: 0.9em;
+      }
+
+      .panel-footer {
+        padding: 0 48px 24px;
+      }
+
+      .switch-button {
+        top: 50%;
+      }
+
+      .switch-button-left {
+        left: 8px;
+      }
+
+      .switch-button-right {
+        right: 8px;
+      }
+
+      .site-footer {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        border-top: 1px solid rgb(38 35 31 / 10%);
+        padding: 24px 40px;
+        color: rgb(38 35 31 / 50%);
+        font-size: 12px;
+      }
+
+      .switch-button {
+        position: absolute;
+        z-index: 2;
+        top: 50%;
+        display: grid;
+        width: 44px;
+        height: 44px;
+        place-items: center;
+        transform: translateY(-50%);
+        border: 1px solid rgb(38 35 31 / 15%);
+        border-radius: 50%;
+        background: rgb(247 244 238 / 94%);
+        box-shadow: 0 2px 8px rgb(38 35 31 / 10%);
+        color: var(--ink);
+        font-size: 24px;
+        line-height: 1;
+        transition: border-color 150ms ease, color 150ms ease;
+      }
+
+      .switch-button:hover,
+      .switch-button:focus-visible {
+        border-color: var(--vermilion);
+        color: var(--vermilion);
+      }
+
+      .switch-button[hidden],
+      [hidden] {
+        display: none !important;
+      }
+
+      @media (min-width: 900px) {
+        .panel-stage {
+          padding-right: 56px;
+          padding-left: 56px;
+        }
+      }
+
+      @media (max-width: 899px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+
+        .about-section {
+          min-height: 52vh;
+          border-right: 0;
+          border-bottom: 1px solid rgb(38 35 31 / 10%);
+          padding: 48px 32px 72px;
+        }
+
+        .feature-panel {
+          min-height: 65vh;
+        }
+
+        .panel-heading {
+          padding-right: 32px;
+          padding-left: 32px;
+        }
+
+        .panel-stage {
+          min-height: 520px;
+          padding-right: 56px;
+          padding-left: 56px;
+        }
+
+        .model-root,
+        .paper-reader {
+          width: 100%;
+          min-height: 400px;
+        }
+
+        .story-section {
+          grid-template-columns: 1fr;
+          gap: 32px;
+          padding: 64px 32px 80px;
+        }
+      }
+
+      @media (max-width: 560px) {
+        .site-header {
+          padding: 18px 20px;
+        }
+
+        .header-tagline {
+          display: none;
+        }
+
+        .about-section {
+          padding: 48px 24px 72px;
+        }
+
+        .intro-copy {
+          font-size: 16px;
+        }
+
+        .panel-heading {
+          align-items: flex-start;
+          padding: 20px 18px 0;
+        }
+
+        .panel-title {
+          font-size: 16px;
+        }
+
+        .panel-badge {
+          max-width: 130px;
+          text-align: center;
+        }
+
+        .panel-stage {
+          min-height: 460px;
+          padding: 16px 44px;
+        }
+
+        .model-root,
+        .paper-reader {
+          min-height: 360px;
+        }
+
+        .story-section {
+          gap: 28px;
+          padding: 56px 24px 68px;
+        }
+
+        .story-notes {
+          margin-top: 24px;
+        }
+
+        .pdf-page {
+          width: calc(100% - 20px);
+          margin: 10px auto;
+          padding: 28px 22px;
+        }
+
+        .pdf-toolbar {
+          padding: 0 10px;
+          font-size: 10px;
+        }
+
+        .panel-footer {
+          padding-right: 18px;
+          padding-left: 18px;
+          font-size: 10px;
+        }
+
+        .switch-button-left {
+          left: 18px;
+        }
+
+        .switch-button-right {
+          right: 18px;
+        }
+
+        .site-footer {
+          flex-direction: column;
+          padding: 20px;
+        }
+      }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <header class="site-header">
+      <a class="brand" href="#home" aria-label="Mithila home">
+        mithila<span class="vermilion">.</span>
+      </a>
+      <span class="header-tagline">Culture in form</span>
+      <a class="text-button" href="#story">
+        Explore the story <span aria-hidden="true">↗</span>
+      </a>
+    </header>
+
+    <main class="layout" id="home">
+      <section class="about-section" id="about" aria-labelledby="page-title">
+        <div class="about-heading">
+          <p class="eyebrow">An interactive cultural study</p>
+          <h1 id="page-title">
+            Where every line<br />
+            <span class="vermilion">holds a story.</span>
+          </h1>
+        </div>
+        <p class="intro-copy">
+          A closer look at Mithila: a living tradition shaped by art, place, and
+          the knowledge passed from one generation to the next.
+        </p>
+        <button class="outline-button" id="open-paper" type="button">
+          Read the field notes <span aria-hidden="true">↓</span>
+        </button>
+        <span class="location">01 — Mithila, Bihar</span>
+      </section>
+
+      <section class="feature-panel" aria-label="Mithila form study">
+        <header class="panel-heading">
+          <div>
+            <p class="panel-label" id="panel-label">Form study</p>
+            <h2 class="panel-title" id="panel-title">A canvas for your model</h2>
+          </div>
+          <span class="panel-badge" id="panel-badge">3D / interactive</span>
+        </header>
+
+        <div class="panel-stage">
+          <div class="model-root" id="model-root" aria-label="Interactive 3D model"></div>
+          <p class="model-load-error" id="model-load-error" hidden>
+            The 3D viewer needs the Vite app server to run. From the project
+            folder, run <code>npm run dev</code> and open the local address it
+            prints.
+          </p>
+
+          <section class="paper-reader" id="writeup" aria-label="Research paper preview" hidden>
+            <header class="pdf-toolbar">
+              <span class="pdf-file"><span class="pdf-icon">PDF</span> lorem-ipsum.pdf</span>
+              <span>Research paper · 1 / 4</span>
+            </header>
+            <article class="pdf-page">
+              <p class="paper-kicker">Lorem ipsum · Dolor sit amet</p>
+              <h2 id="writeup-title">Lorem ipsum dolor sit amet</h2>
+              <p class="paper-byline">Consectetur adipiscing elit · Sed do eiusmod</p>
+
+              <h3 class="paper-section-title">Lorem ipsum</h3>
+              <p class="paper-abstract">
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                Integer posuere erat a ante venenatis dapibus posuere velit
+                aliquet. Aenean eu leo quam. Pellentesque ornare sem lacinia
+                quam venenatis vestibulum.
+              </p>
+
+              <h3 class="paper-section-title">Dolor sit amet</h3>
+              <p>
+                Curabitur blandit tempus porttitor. Donec ullamcorper nulla non
+                metus auctor fringilla. Maecenas faucibus mollis interdum.
+                Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor
+                auctor. Cras mattis consectetur purus sit amet fermentum.
+              </p>
+
+              <h3 class="paper-section-title">Consectetur adipiscing</h3>
+              <p>
+                Sed posuere consectetur est at lobortis. Nulla vitae elit
+                libero, a pharetra augue. Praesent commodo cursus magna, vel
+                scelerisque nisl consectetur et. Morbi leo risus, porta ac
+                consectetur ac, vestibulum at eros.
+              </p>
+
+              <h3 class="paper-section-title">Sed do eiusmod</h3>
+              <p>
+                Etiam porta sem malesuada magna mollis euismod. Donec sed odio
+                dui. Nulla vitae elit libero, a pharetra augue. Donec
+                ullamcorper nulla non metus auctor fringilla.
+              </p>
+            </article>
+          </section>
+
+          <button
+            class="switch-button switch-button-right"
+            id="show-writeup"
+            type="button"
+            aria-label="Open research paper"
+          >
+            <span aria-hidden="true">→</span>
+          </button>
+          <button
+            class="switch-button switch-button-left"
+            id="show-model"
+            type="button"
+            aria-label="Return to 3D model"
+            hidden
+          >
+            <span aria-hidden="true">←</span>
+          </button>
+        </div>
+
+        <footer class="panel-footer">
+          <span id="panel-hint">Drag to orbit · Scroll to zoom</span>
+          <span id="panel-count">3D / 01</span>
+        </footer>
+      </section>
+    </main>
+
+    <section class="story-section" id="story" aria-labelledby="story-heading">
+      <aside>
+        <p class="story-kicker">Field notes / 01</p>
+        <h2 class="story-heading" id="story-heading">A language drawn by hand.</h2>
+        <ul class="story-notes">
+          <li><span>01</span> Living tradition</li>
+          <li><span>02</span> Geometry &amp; pattern</li>
+          <li><span>03</span> Material knowledge</li>
+        </ul>
+      </aside>
+
+      <article class="story-article">
+        <p class="lead">
+          Mithila is a region and a cultural landscape in the eastern
+          subcontinent. Its visual traditions are not simply decoration: they
+          are ways of recording relationships between people, place, ritual,
+          and the natural world.
+        </p>
+
+        <h3>Art shaped by place</h3>
+        <p>
+          Often called Madhubani painting, the region&apos;s art is known for
+          vivid color, rhythmic line, and surfaces filled with repeated
+          motifs. Artists have traditionally worked with locally available
+          materials and painted on walls, floors, and paper. Styles and
+          practices vary between communities and families; the tradition
+          continues to change as artists make it their own.
+        </p>
+
+        <blockquote>
+          A pattern can be both an image and a record of how its maker sees
+          the world.
+        </blockquote>
+
+        <h3>Pattern as a system</h3>
+        <p>
+          Repetition, symmetry, and carefully nested forms make this art a
+          compelling starting point for thinking about design. These are
+          useful connections to explore—not a claim that historical artists
+          were using modern engineering methods. Looking closely at a motif
+          can raise questions about proportion, structure, material, and the
+          knowledge carried through practice.
+        </p>
+
+        <h3>Explore the form</h3>
+        <p>
+          Use the 3D study above as a place to bring those questions into
+          another medium. Add a SolidWorks export to
+          <code>public/models/</code>, then connect it to the viewer to make
+          the object tangible from every angle.
+        </p>
+      </article>
+    </section>
+
+    <footer class="site-footer">
+      <span>Mithila — a study of culture, craft, and form.</span>
+      <span>Designed as an evolving cultural archive.</span>
+    </footer>
+
+    <script>
+      const modelPanel = document.getElementById('model-root');
+      const writeupPanel = document.getElementById('writeup');
+      const showWriteupButton = document.getElementById('show-writeup');
+      const showModelButton = document.getElementById('show-model');
+      const panelLabel = document.getElementById('panel-label');
+      const panelTitle = document.getElementById('panel-title');
+      const panelBadge = document.getElementById('panel-badge');
+      const panelHint = document.getElementById('panel-hint');
+      const panelCount = document.getElementById('panel-count');
+      const modelLoadError = document.getElementById('model-load-error');
+
+      function showPanel(panel) {
+        const showingWriteup = panel === 'writeup';
+        modelPanel.hidden = showingWriteup;
+        writeupPanel.hidden = !showingWriteup;
+        showWriteupButton.hidden = showingWriteup;
+        showModelButton.hidden = !showingWriteup;
+        modelLoadError.hidden = showingWriteup || !!modelPanel.querySelector('.model-viewer');
+        panelLabel.textContent = showingWriteup ? 'Research paper' : 'Form study';
+        panelTitle.textContent = showingWriteup
+          ? 'Lorem ipsum dolor sit amet'
+          : 'A canvas for your model';
+        panelBadge.textContent = showingWriteup
+          ? 'PDF / placeholder'
+          : '3D / interactive';
+        panelHint.textContent = showingWriteup
+          ? 'Scroll the paper to read'
+          : 'Drag to orbit · Scroll to zoom';
+        panelCount.textContent = showingWriteup ? 'PDF · 1 / 4' : '3D / 01';
+      }
+
+      showWriteupButton.addEventListener('click', () => showPanel('writeup'));
+      showModelButton.addEventListener('click', () => showPanel('model'));
+      document
+        .getElementById('open-paper')
+        .addEventListener('click', () => {
+          document.getElementById('story').scrollIntoView({ behavior: 'smooth' });
+        });
+
+      window.setTimeout(() => {
+        modelLoadError.hidden = !!modelPanel.querySelector('.model-viewer');
+      }, 3000);
+    </script>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
