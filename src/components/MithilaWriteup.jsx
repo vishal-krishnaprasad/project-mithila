@@ -8,7 +8,7 @@ export default function MithilaWriteup() {
   return (
     <section
       id="story"
-      className="mx-auto grid max-w-7xl grid-cols-1 gap-12 px-6 py-20 sm:px-10 lg:grid-cols-[0.7fr_1.3fr] lg:gap-24 lg:py-28"
+      className="grid h-full min-h-0 grid-cols-1 gap-8 overflow-y-auto rounded-sm border border-ink/10 bg-paper px-6 py-8 sm:px-10 sm:py-10 lg:grid-cols-[0.7fr_1.3fr] lg:gap-12"
     >
       <aside>
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-vermilion">
