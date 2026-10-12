@@ -1,0 +1,95 @@
+import { Suspense } from 'react';
+import { Canvas } from '@react-three/fiber';
+import {
+  ContactShadows,
+  Environment,
+  Html,
+  OrbitControls,
+  useGLTF,
+} from '@react-three/drei';
+
+function Model({ modelPath }) {
+  const { scene } = useGLTF(modelPath);
+  return <primitive object={scene} />;
+}
+
+function ModelPlaceholder() {
+  return (
+    <group rotation={[0, -0.3, 0]}>
+      <mesh castShadow position={[0, 0.12, 0]}>
+        <dodecahedronGeometry args={[1.05, 1]} />
+        <meshStandardMaterial
+          color="#b84932"
+          roughness={0.48}
+          metalness={0.08}
+          flatShading
+        />
+      </mesh>
+      <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0.12, 0]}>
+        <torusGeometry args={[1.32, 0.012, 8, 96]} />
+        <meshStandardMaterial color="#c98e43" roughness={0.5} />
+      </mesh>
+    </group>
+  );
+}
+
+function LoadingLabel() {
+  return (
+    <Html center>
+      <span className="whitespace-nowrap rounded-full bg-paper/90 px-4 py-2 text-xs text-ink/70 shadow-sm">
+        Preparing model…
+      </span>
+    </Html>
+  );
+}
+
+export default function MithilaViewer({ modelPath }) {
+  return (
+    <div className="relative h-full min-h-[360px] overflow-hidden rounded-sm border border-ink/10 bg-[#e8e1d5]">
+      <Canvas
+        shadows
+        dpr={[1, 2]}
+        camera={{ position: [3.5, 2.5, 4.5], fov: 38 }}
+        gl={{ antialias: true, alpha: false }}
+      >
+        <color attach="background" args={['#e8e1d5']} />
+        <ambientLight intensity={0.7} />
+        <directionalLight
+          castShadow
+          position={[4, 6, 4]}
+          intensity={2.1}
+          shadow-mapSize={[1024, 1024]}
+        />
+        <directionalLight position={[-4, 2, -3]} intensity={0.75} />
+
+        <Suspense fallback={<LoadingLabel />}>
+          {modelPath ? <Model modelPath={modelPath} /> : <ModelPlaceholder />}
+          <Environment preset="studio" />
+        </Suspense>
+
+        <ContactShadows
+          position={[0, -1.15, 0]}
+          opacity={0.35}
+          scale={8}
+          blur={2.5}
+          far={3}
+        />
+        <OrbitControls
+          makeDefault
+          autoRotate
+          autoRotateSpeed={0.65}
+          enableDamping
+          dampingFactor={0.06}
+          minDistance={2}
+          maxDistance={9}
+          maxPolarAngle={Math.PI * 0.82}
+        />
+      </Canvas>
+      {!modelPath && (
+        <div className="pointer-events-none absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full border border-ink/10 bg-paper/80 px-4 py-2 text-center text-[11px] text-ink/60 backdrop-blur-sm">
+          Add a GLB in public/models to show your SolidWorks export
+        </div>
+      )}
+    </div>
+  );
+}
