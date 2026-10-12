@@ -337,6 +337,18 @@
         text-align: center;
       }
 
+      .viewer-support-message {
+        display: grid;
+        width: 100%;
+        height: 100%;
+        place-items: center;
+        padding: 24px;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.7;
+        text-align: center;
+      }
+
       .paper-reader {
         display: flex;
         width: 100%;
@@ -754,9 +766,8 @@
         <div class="panel-stage">
           <div class="model-root" id="model-root" aria-label="Interactive 3D model"></div>
           <p class="model-load-error" id="model-load-error" hidden>
-            The 3D viewer needs the Vite app server to run. From the project
-            folder, run <code>npm run dev</code> and open the local address it
-            prints.
+            The interactive 3D viewer could not start. Try refreshing the page
+            in an up-to-date browser with WebGL enabled.
           </p>
 
           <section class="paper-reader" id="writeup" aria-label="Research paper preview" hidden>
