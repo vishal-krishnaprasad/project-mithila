@@ -18,6 +18,18 @@ import {
 } from 'three';
 import { STLLoader } from 'three/addons/loaders/STLLoader.js';
 
+const ASTRONOMICAL_UNIT_IN_MILLION_KM = 149.6;
+const INNER_ORBIT_OFFSET = 0.52;
+const ORBIT_DISTANCE_FACTOR = 0.88;
+const ASTEROID_BELT_INNER_DISTANCE = 2.1 * ASTRONOMICAL_UNIT_IN_MILLION_KM;
+const ASTEROID_BELT_OUTER_DISTANCE = 3.3 * ASTRONOMICAL_UNIT_IN_MILLION_KM;
+
+function scaledSolarDistance(distanceInMillionKm) {
+  const distanceInAstronomicalUnits =
+    distanceInMillionKm / ASTRONOMICAL_UNIT_IN_MILLION_KM;
+  return INNER_ORBIT_OFFSET + ORBIT_DISTANCE_FACTOR * Math.sqrt(distanceInAstronomicalUnits);
+}
+
 function createStarfieldGeometry() {
   const positions = new Float32Array(1800);
   let seed = 7351;
@@ -569,6 +581,52 @@ function Planet({
   );
 }
 
+function AsteroidBelt() {
+  const geometry = useMemo(() => {
+    const positions = new Float32Array(1600 * 3);
+    let seed = 4219;
+    const random = () => {
+      seed = (seed * 16807) % 2147483647;
+      return (seed - 1) / 2147483646;
+    };
+
+    for (let asteroid = 0; asteroid < positions.length / 3; asteroid += 1) {
+      const angle = random() * Math.PI * 2;
+      const radius =
+        scaledSolarDistance(ASTEROID_BELT_INNER_DISTANCE) +
+        random() *
+          (scaledSolarDistance(ASTEROID_BELT_OUTER_DISTANCE) -
+            scaledSolarDistance(ASTEROID_BELT_INNER_DISTANCE));
+      const offset = asteroid * 3;
+      positions[offset] = Math.cos(angle) * radius;
+      positions[offset + 1] = (random() - 0.5) * 0.12;
+      positions[offset + 2] = Math.sin(angle) * radius;
+    }
+
+    const beltGeometry = new BufferGeometry();
+    beltGeometry.setAttribute(
+      'position',
+      new Float32BufferAttribute(positions, 3),
+    );
+    return beltGeometry;
+  }, []);
+  const material = useMemo(
+    () =>
+      new PointsMaterial({
+        color: '#d3b58c',
+        size: 0.035,
+        sizeAttenuation: true,
+        transparent: true,
+        opacity: 0.88,
+        depthWrite: false,
+      }),
+    [],
+  );
+  const asteroids = useMemo(() => new Points(geometry, material), [geometry, material]);
+
+  return <primitive object={asteroids} />;
+}
+
 function JupiterWithMithila({ texture }) {
   const orbit = useRef(null);
   const markerOrbit = useRef(null);
@@ -576,8 +634,9 @@ function JupiterWithMithila({ texture }) {
   const arrowShaft = useRef(null);
   const arrowHead = useRef(null);
   const direction = useMemo(() => new Vector3(), []);
-  const markerOrbitRadius = 1.28;
-  const arrowOrigin = [1.5, 1.45, 0.2];
+  const markerOrbitRadius = 0.55;
+  const arrowOrigin = [0.88, 0.95, 0.12];
+  const jupiterOrbitRadius = scaledSolarDistance(778.5);
 
   useFrame((state, delta) => {
     const angle = state.clock.elapsedTime * 0.62;
@@ -612,13 +671,13 @@ function JupiterWithMithila({ texture }) {
   return (
     <>
       <mesh rotation={[-Math.PI / 2, 0, 0]}>
-        <torusGeometry args={[4.15, 0.01, 5, 280]} />
+        <torusGeometry args={[jupiterOrbitRadius, 0.01, 5, 280]} />
         <meshBasicMaterial color="#f2c58b" transparent opacity={0.55} />
       </mesh>
       <group ref={orbit}>
-        <group position={[4.15, 0, 0]}>
+        <group position={[jupiterOrbitRadius, 0, 0]}>
           <mesh castShadow receiveShadow>
-            <sphereGeometry args={[0.58, 64, 48]} />
+            <sphereGeometry args={[0.42, 64, 48]} />
             <meshStandardMaterial map={texture} roughness={0.9} />
           </mesh>
           <mesh rotation={[-Math.PI / 2, 0, 0]}>
@@ -649,9 +708,9 @@ function JupiterWithMithila({ texture }) {
             </mesh>
           </group>
           <Html
-            position={[1.5, 1.8, 0.2]}
+            position={[0.88, 1.28, 0.12]}
             center
-            distanceFactor={17}
+            distanceFactor={9}
             style={{ pointerEvents: 'none' }}
           >
             <span className="mithila-marker-label">MITHILA</span>
@@ -690,49 +749,40 @@ function SolarSystem() {
   return (
     <group scale={0.95}>
       <mesh>
-        <sphereGeometry args={[1.55, 64, 48]} />
+        <sphereGeometry args={[0.62, 64, 48]} />
         <meshBasicMaterial color="#ffd36c" toneMapped={false} />
-      </mesh>
-      <mesh>
-        <sphereGeometry args={[1.88, 48, 32]} />
-        <meshBasicMaterial
-          color="#f7b84b"
-          transparent
-          opacity={0.12}
-          depthWrite={false}
-          toneMapped={false}
-        />
       </mesh>
       <pointLight color="#ffd783" intensity={240} distance={24} decay={2} />
       <Planet
         radius={0.035}
-        orbitRadius={2}
+        orbitRadius={scaledSolarDistance(57.9)}
         color="#99958e"
         speed={0.27}
       />
       <Planet
         radius={0.065}
-        orbitRadius={2.45}
+        orbitRadius={scaledSolarDistance(108.2)}
         color="#d4b27e"
         speed={0.2}
       />
       <Planet
         radius={0.07}
-        orbitRadius={3.05}
+        orbitRadius={scaledSolarDistance(149.6)}
         color="#ffffff"
         texture={earthTexture}
         speed={0.16}
       />
       <Planet
         radius={0.048}
-        orbitRadius={3.65}
-        color="#bd684d"
+        orbitRadius={scaledSolarDistance(228)}
+        color="#c83f32"
         speed={0.13}
       />
+      <AsteroidBelt />
       <JupiterWithMithila texture={jupiterTexture} />
       <Planet
         radius={0.48}
-        orbitRadius={5.55}
+        orbitRadius={scaledSolarDistance(1432)}
         color="#d0b47f"
         texture={saturnTexture}
         speed={0.06}
@@ -753,17 +803,54 @@ function SolarSystem() {
       </Planet>
       <Planet
         radius={0.27}
-        orbitRadius={7.05}
-        color="#83c7ce"
+        orbitRadius={scaledSolarDistance(2867)}
+        color="#38a9d6"
         speed={0.045}
-      />
+      >
+        <group rotation={[0, Math.PI / 2, 0]}>
+          {[
+            [0.34, 0.4],
+            [0.42, 0.47],
+            [0.49, 0.55],
+            [0.58, 0.65],
+          ].map(([innerRadius, outerRadius], index) => (
+            <mesh key={innerRadius}>
+              <ringGeometry args={[innerRadius, outerRadius, 96]} />
+              <meshBasicMaterial
+                color={index % 2 === 0 ? '#d8e0e4' : '#aebbc2'}
+                side={DoubleSide}
+                transparent
+                opacity={0.82}
+              />
+            </mesh>
+          ))}
+        </group>
+      </Planet>
       <Planet
         radius={0.27}
-        orbitRadius={8.4}
+        orbitRadius={scaledSolarDistance(4515)}
         color="#287bb5"
         texture={neptuneTexture}
         speed={0.035}
-      />
+      >
+        <group>
+          {[
+            [0.4, 0.49],
+            [0.53, 0.63],
+            [0.67, 0.78],
+          ].map(([innerRadius, outerRadius], index) => (
+            <mesh key={innerRadius} rotation={[-Math.PI / 2 + 0.12, 0, 0.08]}>
+              <ringGeometry args={[innerRadius, outerRadius, 96]} />
+              <meshBasicMaterial
+                color={index % 2 === 0 ? '#56616b' : '#34404a'}
+                side={DoubleSide}
+                transparent
+                opacity={0.9}
+              />
+            </mesh>
+          ))}
+        </group>
+      </Planet>
     </group>
   );
 }
@@ -833,11 +920,11 @@ export default function MithilaViewer({
         dpr={[1, 2]}
         camera={{
           position: isSolarSystem
-            ? [0, 6.5, 15.5]
+            ? [0, 4, 12]
             : showDimensions
               ? [2.4, 1.6, 3.2]
               : [3.5, 2.5, 4.5],
-          fov: isSolarSystem ? 34 : 38,
+          fov: 38,
         }}
         gl={{ antialias: true, alpha: false }}
       >
@@ -904,14 +991,14 @@ export default function MithilaViewer({
           minDistance={isSolarSystem ? 3 : 2}
           maxDistance={isSolarSystem ? 34 : 9}
           maxPolarAngle={Math.PI * 0.82}
-          target={[0, 0, 0]}
+          target={isSolarSystem ? [0.35, 0, 0] : [0, 0, 0]}
         />
       </Canvas>
       {isSolarSystem && (
         <div className="solar-system-key">
           <span>Project Mithila · View 3</span>
-          <strong>Approximate location in the Solar System</strong>
-          <small>NO MOONS SHOWN FOR EASE OF VIEWING!</small>
+          <strong>Approx. location in the Solar System</strong>
+          <small>PLANETARY ROTATION AND INDIVIDUAL MOONS ARE NOT SHOWN!</small>
         </div>
       )}
       {showDimensions && (

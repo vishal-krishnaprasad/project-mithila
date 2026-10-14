@@ -303,24 +303,28 @@
         top: 12px;
         left: 50%;
         max-width: calc(100% - 120px);
-        border: 1px solid rgb(38 35 31 / 15%);
+        border: 1px solid rgb(255 255 255 / 75%);
         border-radius: 999px;
         padding: 8px 30px 8px 12px;
         appearance: none;
         background:
-          linear-gradient(45deg, transparent 50%, var(--ink) 50%) right 13px top 14px / 5px 5px no-repeat,
-          linear-gradient(135deg, var(--ink) 50%, transparent 50%) right 9px top 14px / 5px 5px no-repeat,
-          rgb(247 244 238 / 94%);
-        box-shadow: 0 2px 8px rgb(38 35 31 / 10%);
-        color: var(--ink);
+          linear-gradient(45deg, transparent 50%, #fff 50%) right 13px top 14px / 5px 5px no-repeat,
+          linear-gradient(135deg, #fff 50%, transparent 50%) right 9px top 14px / 5px 5px no-repeat,
+          transparent;
+        color: #fff;
         font-size: 11px;
         transform: translateX(-50%);
       }
 
       .view-select:hover,
       .view-select:focus-visible {
-        border-color: var(--vermilion);
-        outline-color: var(--vermilion);
+        border-color: #fff;
+        outline-color: #fff;
+      }
+
+      .view-select option {
+        background: #fff;
+        color: var(--ink);
       }
 
       .recenter-button {
@@ -1162,7 +1166,7 @@
           mode: 'solar-system',
           label: 'Sandbox 03 · Solar System',
           title: 'Mithila in Jovian orbit',
-          hint: 'Drag to orbit · Scroll to zoom · Orbital distances compressed',
+          hint: 'Drag to orbit · Scroll to zoom · Orbit spacing adapted from NASA distances',
         },
       ];
       let activeView = 0;
