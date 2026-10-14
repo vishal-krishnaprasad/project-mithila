@@ -218,6 +218,30 @@ function splitLargestComponent(geometry) {
     component.faces.length > largest.faces.length ? component : largest,
   );
   const largestFaces = new Set(largestComponent.faces);
+  const ringY = (largestComponent.minY + largestComponent.maxY) / 2;
+  let ringMinRadius = Infinity;
+  let ringMaxRadius = -Infinity;
+  for (let face = 0; face < faceCount; face += 1) {
+    if (!largestFaces.has(face)) continue;
+    for (let vertex = 0; vertex < 3; vertex += 1) {
+      const offset = face * 9 + vertex * 3;
+      const y = positions[offset + 1];
+      const radius = Math.hypot(
+        positions[offset] - modelCenter.x,
+        positions[offset + 2] - modelCenter.z,
+      );
+      if (Math.abs(y - ringY) <= 8 && radius > 800) {
+        ringMinRadius = Math.min(ringMinRadius, radius);
+        ringMaxRadius = Math.max(ringMaxRadius, radius);
+      }
+    }
+  }
+  if (!Number.isFinite(ringMinRadius) || !Number.isFinite(ringMaxRadius)) {
+    throw new Error('Could not locate the model ring for spoke connectors.');
+  }
+  const ringRadius = (ringMinRadius + ringMaxRadius) / 2;
+  const ringTubeRadius = (ringMaxRadius - ringMinRadius) / 2 + 7;
+  const jointArc = 48 / ringRadius;
   const panelComponents = new Set(
     componentList.filter(
       ({ faces, minY, maxY }) =>
@@ -319,6 +343,10 @@ function splitLargestComponent(geometry) {
     rotatingGeometry,
     contactGeometry,
     rotatingCenter: rotatingGeometry.boundingBox.getCenter(new Vector3()),
+    jointCenter: new Vector3(modelCenter.x, ringY, modelCenter.z),
+    ringRadius,
+    ringTubeRadius,
+    jointArc,
   };
 }
 
@@ -331,6 +359,10 @@ function Model({ modelPath }) {
     rotatingGeometry,
     contactGeometry,
     rotatingCenter,
+    jointCenter,
+    ringRadius,
+    ringTubeRadius,
+    jointArc,
   } = useMemo(
     () => splitLargestComponent(geometry),
     [geometry],
@@ -380,7 +412,358 @@ function Model({ modelPath }) {
             metalness={0.08}
           />
         </mesh>
+        {[0, Math.PI / 2, Math.PI, (Math.PI * 3) / 2].map((angle) => (
+          <group
+            key={angle}
+            position={[
+              jointCenter.x - rotatingCenter.x,
+              jointCenter.y - rotatingCenter.y,
+              jointCenter.z - rotatingCenter.z,
+            ]}
+            rotation={[0, jointArc / 2 - angle, 0]}
+          >
+            <mesh rotation={[Math.PI / 2, 0, 0]}>
+              <torusGeometry
+                args={[ringRadius, ringTubeRadius, 24, 24, jointArc]}
+              />
+              <meshBasicMaterial color="#080808" side={DoubleSide} />
+            </mesh>
+          </group>
+        ))}
       </group>
+    </group>
+  );
+}
+
+function createJupiterTexture() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 1024;
+  canvas.height = 512;
+  const context = canvas.getContext('2d');
+  if (!context) {
+    throw new Error('Could not create the Jupiter surface texture canvas.');
+  }
+
+  const bands = [
+    ['#d6b58a', 0.08],
+    ['#a9663e', 0.06],
+    ['#ead5ac', 0.11],
+    ['#bc7950', 0.07],
+    ['#f0dfbd', 0.11],
+    ['#a85f3c', 0.07],
+    ['#d4ad7d', 0.1],
+    ['#f1dfbc', 0.12],
+    ['#a96b49', 0.07],
+    ['#e7cda4', 0.1],
+    ['#bd8056', 0.06],
+    ['#d6b58a', 0.05],
+  ];
+  let top = 0;
+  bands.forEach(([color, fraction], index) => {
+    const bottom = index === bands.length - 1
+      ? canvas.height
+      : top + canvas.height * fraction;
+    context.fillStyle = color;
+    context.fillRect(0, top, canvas.width, bottom - top);
+    context.fillStyle = 'rgb(255 244 216 / 12%)';
+    for (let x = -40; x < canvas.width; x += 110) {
+      const offset = Math.sin(x * 0.012 + index) * 4;
+      context.fillRect(x, top + offset, 62, Math.max(2, (bottom - top) * 0.1));
+    }
+    top = bottom;
+  });
+
+  context.save();
+  context.translate(260, 278);
+  context.rotate(-0.12);
+  context.fillStyle = '#b95737';
+  context.beginPath();
+  context.ellipse(0, 0, 110, 45, 0, 0, Math.PI * 2);
+  context.fill();
+  context.strokeStyle = 'rgb(247 220 179 / 55%)';
+  context.lineWidth = 5;
+  context.beginPath();
+  context.ellipse(0, 0, 86, 28, 0, 0, Math.PI * 2);
+  context.stroke();
+  context.restore();
+
+  const texture = new CanvasTexture(canvas);
+  texture.colorSpace = SRGBColorSpace;
+  return texture;
+}
+
+function createNeptuneTexture() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 1024;
+  canvas.height = 512;
+  const context = canvas.getContext('2d');
+  if (!context) {
+    throw new Error('Could not create the Neptune surface texture canvas.');
+  }
+
+  context.fillStyle = '#176fae';
+  context.fillRect(0, 0, canvas.width, canvas.height);
+  const bands = ['#278ac3', '#176fae', '#135d9e', '#3195c7', '#155f9e'];
+  bands.forEach((color, index) => {
+    context.fillStyle = color;
+    const y = index * 108 - 22;
+    context.fillRect(0, y, canvas.width, 42);
+    context.fillStyle = 'rgb(145 213 236 / 18%)';
+    context.fillRect(0, y + 42, canvas.width, 15);
+  });
+  context.save();
+  context.translate(260, 255);
+  context.rotate(-0.18);
+  context.fillStyle = '#082f55';
+  context.beginPath();
+  context.ellipse(0, 0, 118, 54, 0, 0, Math.PI * 2);
+  context.fill();
+  context.strokeStyle = 'rgb(106 178 215 / 70%)';
+  context.lineWidth = 5;
+  context.beginPath();
+  context.ellipse(0, 0, 144, 72, 0, 0, Math.PI * 2);
+  context.stroke();
+  context.restore();
+
+  const texture = new CanvasTexture(canvas);
+  texture.colorSpace = SRGBColorSpace;
+  return texture;
+}
+
+function Planet({
+  radius,
+  orbitRadius,
+  color,
+  texture,
+  speed,
+  children,
+}) {
+  const orbit = useRef(null);
+  const planet = useRef(null);
+
+  useFrame((_, delta) => {
+    if (orbit.current) orbit.current.rotation.y += delta * speed;
+    if (planet.current) planet.current.rotation.y += delta * 0.22;
+  });
+
+  return (
+    <>
+      <mesh rotation={[-Math.PI / 2, 0, 0]}>
+        <torusGeometry args={[orbitRadius, 0.01, 5, 240]} />
+        <meshBasicMaterial color="#77818d" transparent opacity={0.62} />
+      </mesh>
+      <group ref={orbit}>
+        <group position={[orbitRadius, 0, 0]}>
+          <mesh ref={planet} castShadow receiveShadow>
+            <sphereGeometry args={[radius, 48, 32]} />
+            <meshStandardMaterial
+              color={color}
+              map={texture}
+              roughness={0.88}
+            />
+          </mesh>
+          {children}
+        </group>
+      </group>
+    </>
+  );
+}
+
+function JupiterWithMithila({ texture }) {
+  const orbit = useRef(null);
+  const markerOrbit = useRef(null);
+  const arrow = useRef(null);
+  const arrowShaft = useRef(null);
+  const arrowHead = useRef(null);
+  const direction = useMemo(() => new Vector3(), []);
+  const markerOrbitRadius = 1.28;
+  const arrowOrigin = [1.5, 1.45, 0.2];
+
+  useFrame((state, delta) => {
+    const angle = state.clock.elapsedTime * 0.62;
+    if (orbit.current) orbit.current.rotation.y += delta * 0.035;
+    if (markerOrbit.current) markerOrbit.current.rotation.y = angle;
+
+    const markerX = Math.cos(angle) * markerOrbitRadius;
+    const markerZ = -Math.sin(angle) * markerOrbitRadius;
+    direction.set(
+      markerX - arrowOrigin[0],
+      0.025 - arrowOrigin[1],
+      markerZ - arrowOrigin[2],
+    );
+    const arrowLength = direction.length();
+    direction.normalize();
+
+    if (arrow.current) {
+      arrow.current.quaternion.setFromUnitVectors(
+        new Vector3(0, 1, 0),
+        direction,
+      );
+    }
+    if (arrowShaft.current) {
+      arrowShaft.current.position.y = (arrowLength - 0.1) / 2;
+      arrowShaft.current.scale.y = Math.max(0.1, arrowLength - 0.1);
+    }
+    if (arrowHead.current) {
+      arrowHead.current.position.y = arrowLength - 0.08;
+    }
+  });
+
+  return (
+    <>
+      <mesh rotation={[-Math.PI / 2, 0, 0]}>
+        <torusGeometry args={[4.15, 0.01, 5, 280]} />
+        <meshBasicMaterial color="#f2c58b" transparent opacity={0.55} />
+      </mesh>
+      <group ref={orbit}>
+        <group position={[4.15, 0, 0]}>
+          <mesh castShadow receiveShadow>
+            <sphereGeometry args={[0.58, 64, 48]} />
+            <meshStandardMaterial map={texture} roughness={0.9} />
+          </mesh>
+          <mesh rotation={[-Math.PI / 2, 0, 0]}>
+            <torusGeometry args={[markerOrbitRadius, 0.008, 6, 96]} />
+            <meshBasicMaterial color="#f5dfbd" transparent opacity={0.8} />
+          </mesh>
+          <group ref={markerOrbit}>
+            <mesh position={[markerOrbitRadius, 0.025, 0]}>
+              <sphereGeometry args={[0.035, 20, 16]} />
+              <meshBasicMaterial color="#ffffff" toneMapped={false} />
+            </mesh>
+            <pointLight
+              position={[markerOrbitRadius, 0.025, 0]}
+              color="#ffffff"
+              intensity={0.8}
+              distance={1.3}
+              decay={2}
+            />
+          </group>
+          <group ref={arrow} position={arrowOrigin}>
+            <mesh ref={arrowShaft}>
+              <cylinderGeometry args={[0.012, 0.012, 1, 8]} />
+              <meshBasicMaterial color="#ffffff" />
+            </mesh>
+            <mesh ref={arrowHead}>
+              <coneGeometry args={[0.055, 0.13, 12]} />
+              <meshBasicMaterial color="#ffffff" />
+            </mesh>
+          </group>
+          <Html
+            position={[1.5, 1.8, 0.2]}
+            center
+            distanceFactor={17}
+            style={{ pointerEvents: 'none' }}
+          >
+            <span className="mithila-marker-label">MITHILA</span>
+          </Html>
+        </group>
+      </group>
+    </>
+  );
+}
+
+function SolarSystem() {
+  const jupiterTexture = useMemo(createJupiterTexture, []);
+  const saturnTexture = useMemo(createSaturnTexture, []);
+  const neptuneTexture = useMemo(createNeptuneTexture, []);
+  const earthTexture = useMemo(() => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 256;
+    const context = canvas.getContext('2d');
+    if (!context) {
+      throw new Error('Could not create the Earth surface texture canvas.');
+    }
+    context.fillStyle = '#246f9d';
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.fillStyle = '#62975c';
+    context.beginPath();
+    context.ellipse(120, 90, 58, 34, -0.4, 0, Math.PI * 2);
+    context.ellipse(280, 155, 46, 24, 0.5, 0, Math.PI * 2);
+    context.ellipse(390, 72, 28, 18, 0.3, 0, Math.PI * 2);
+    context.fill();
+    const texture = new CanvasTexture(canvas);
+    texture.colorSpace = SRGBColorSpace;
+    return texture;
+  }, []);
+
+  return (
+    <group scale={0.95}>
+      <mesh>
+        <sphereGeometry args={[1.55, 64, 48]} />
+        <meshBasicMaterial color="#ffd36c" toneMapped={false} />
+      </mesh>
+      <mesh>
+        <sphereGeometry args={[1.88, 48, 32]} />
+        <meshBasicMaterial
+          color="#f7b84b"
+          transparent
+          opacity={0.12}
+          depthWrite={false}
+          toneMapped={false}
+        />
+      </mesh>
+      <pointLight color="#ffd783" intensity={240} distance={24} decay={2} />
+      <Planet
+        radius={0.035}
+        orbitRadius={2}
+        color="#99958e"
+        speed={0.27}
+      />
+      <Planet
+        radius={0.065}
+        orbitRadius={2.45}
+        color="#d4b27e"
+        speed={0.2}
+      />
+      <Planet
+        radius={0.07}
+        orbitRadius={3.05}
+        color="#ffffff"
+        texture={earthTexture}
+        speed={0.16}
+      />
+      <Planet
+        radius={0.048}
+        orbitRadius={3.65}
+        color="#bd684d"
+        speed={0.13}
+      />
+      <JupiterWithMithila texture={jupiterTexture} />
+      <Planet
+        radius={0.48}
+        orbitRadius={5.55}
+        color="#d0b47f"
+        texture={saturnTexture}
+        speed={0.06}
+      >
+        <group rotation={[Math.PI * 0.1, 0, Math.PI * 0.08]}>
+          {[0.57, 0.67, 0.78].map((ringRadius, index) => (
+            <mesh key={ringRadius} rotation={[-Math.PI / 2, 0, 0]}>
+              <ringGeometry args={[ringRadius, ringRadius + (index === 1 ? 0.09 : 0.045), 96]} />
+              <meshBasicMaterial
+                color={index === 1 ? '#dbc18e' : '#a58458'}
+                side={DoubleSide}
+                transparent
+                opacity={0.78}
+              />
+            </mesh>
+          ))}
+        </group>
+      </Planet>
+      <Planet
+        radius={0.27}
+        orbitRadius={7.05}
+        color="#83c7ce"
+        speed={0.045}
+      />
+      <Planet
+        radius={0.27}
+        orbitRadius={8.4}
+        color="#287bb5"
+        texture={neptuneTexture}
+        speed={0.035}
+      />
     </group>
   );
 }
@@ -415,12 +798,31 @@ function LoadingLabel() {
   );
 }
 
-export default function MithilaViewer({ modelPath }) {
+export default function MithilaViewer({
+  modelPath,
+  viewMode = 'overview',
+  onViewChange,
+}) {
   const planetTexture = useMemo(createSaturnTexture, []);
+  const controlsRef = useRef(null);
+  const isSolarSystem = viewMode === 'solar-system';
+  const showDimensions = viewMode === 'dimensions';
 
   return (
     <div className="model-viewer">
+      <select
+        id="view-select"
+        className="view-select"
+        aria-label="Select 3D model view"
+        value={viewMode}
+        onChange={(event) => onViewChange(event.target.value)}
+      >
+        <option value="overview">View 1</option>
+        <option value="dimensions">View 2</option>
+        <option value="solar-system">View 3</option>
+      </select>
       <Canvas
+        key={viewMode}
         fallback={
           <div className="viewer-support-message" role="status">
             Interactive 3D is not available in this browser. Try opening this
@@ -429,12 +831,19 @@ export default function MithilaViewer({ modelPath }) {
         }
         shadows
         dpr={[1, 2]}
-        camera={{ position: [3.5, 2.5, 4.5], fov: 38 }}
+        camera={{
+          position: isSolarSystem
+            ? [0, 6.5, 15.5]
+            : showDimensions
+              ? [2.4, 1.6, 3.2]
+              : [3.5, 2.5, 4.5],
+          fov: isSolarSystem ? 34 : 38,
+        }}
         gl={{ antialias: true, alpha: false }}
       >
         <color attach="background" args={['#000000']} />
         <Starfield />
-        <ambientLight intensity={0.7} />
+        <ambientLight intensity={isSolarSystem ? 0.3 : 0.7} />
         <directionalLight
           castShadow
           position={[4, 6, 4]}
@@ -444,53 +853,113 @@ export default function MithilaViewer({ modelPath }) {
         <directionalLight position={[-4, 2, -3]} intensity={0.75} />
 
         <Suspense fallback={<LoadingLabel />}>
-          {modelPath ? <Model modelPath={modelPath} /> : <ModelPlaceholder />}
+          {isSolarSystem ? (
+            <SolarSystem />
+          ) : !modelPath ? (
+            <ModelPlaceholder />
+          ) : (
+            <Model modelPath={modelPath} />
+          )}
           <Environment preset="studio" />
         </Suspense>
 
-        <mesh
-          rotation={[Math.PI / 2, 0, 0]}
-          position={[0, -12.5, 0]}
-          receiveShadow
-        >
-          <sphereGeometry args={[9.55, 96, 64]} />
-          <meshStandardMaterial
-            map={planetTexture}
-            emissive="#ffffff"
-            emissiveMap={planetTexture}
-            emissiveIntensity={0.35}
-            roughness={1}
-          />
-        </mesh>
-        <group position={[0, -8.4, 0]} rotation={[Math.PI / 2, 0, 0]}>
-          {[
-            [9.65, 10.15, '#b99a6b'],
-            [10.32, 10.9, '#8e6e49'],
-            [11.08, 11.85, '#d2b47d'],
-            [12.05, 13.2, '#a18158'],
-          ].map(([innerRadius, outerRadius, color]) => (
-            <mesh key={innerRadius}>
-              <ringGeometry args={[innerRadius, outerRadius, 160]} />
-              <meshBasicMaterial color={color} side={DoubleSide} />
+        {!isSolarSystem && (
+          <>
+            <mesh
+              rotation={[Math.PI / 2, 0, 0]}
+              position={[0, -12.5, 0]}
+              receiveShadow
+            >
+              <sphereGeometry args={[9.55, 96, 64]} />
+              <meshStandardMaterial
+                map={planetTexture}
+                emissive="#ffffff"
+                emissiveMap={planetTexture}
+                emissiveIntensity={0.35}
+                roughness={1}
+              />
             </mesh>
-          ))}
-        </group>
+            <group position={[0, -8.4, 0]} rotation={[Math.PI / 2, 0, 0]}>
+              {[
+                [9.65, 10.15, '#b99a6b'],
+                [10.32, 10.9, '#8e6e49'],
+                [11.08, 11.85, '#d2b47d'],
+                [12.05, 13.2, '#a18158'],
+              ].map(([innerRadius, outerRadius, color]) => (
+                <mesh key={innerRadius}>
+                  <ringGeometry args={[innerRadius, outerRadius, 160]} />
+                  <meshBasicMaterial color={color} side={DoubleSide} />
+                </mesh>
+              ))}
+            </group>
+          </>
+        )}
         <OrbitControls
+          ref={controlsRef}
           makeDefault
-          autoRotate
+          autoRotate={!isSolarSystem}
           autoRotateSpeed={0.65}
           enableDamping
           dampingFactor={0.06}
-          minDistance={2}
-          maxDistance={9}
+          minDistance={isSolarSystem ? 3 : 2}
+          maxDistance={isSolarSystem ? 34 : 9}
           maxPolarAngle={Math.PI * 0.82}
+          target={[0, 0, 0]}
         />
       </Canvas>
-      {!modelPath && (
-        <div className="viewer-placeholder-help">
-          No 3D object is configured yet
+      {isSolarSystem && (
+        <div className="solar-system-key">
+          <span>Project Mithila · View 3</span>
+          <strong>Approximate location in the Solar System</strong>
+          <small>NO MOONS SHOWN FOR EASE OF VIEWING!</small>
         </div>
       )}
+      {showDimensions && (
+        <div className="dimension-overlay" aria-label="Settlement dimension guide">
+          <div className="dimension-heading">
+            <span>Concept dimensions</span>
+            <strong>Gravity ring · Ø 1,800 m · 1 RPM</strong>
+          </div>
+          <div className="dimension-scale" aria-label="Scale from 0 to 1,800 meters">
+            <div className="dimension-scale-bar" aria-hidden="true">
+              <span />
+              <span />
+              <span />
+              <span />
+            </div>
+            <div className="dimension-scale-labels" aria-hidden="true">
+              <span>0</span>
+              <span>450</span>
+              <span>900</span>
+              <span>1,350</span>
+              <span>1,800 m</span>
+            </div>
+          </div>
+          <div className="dimension-facts">
+            <span>Ring tube Ø 15 m</span>
+            <span>Spine 1,200 m · Ø 30 m</span>
+            <span>4 spokes · Ø 6 m</span>
+            <span>4 wings · 35 × 100 m</span>
+          </div>
+        </div>
+      )}
+      <button
+        className="recenter-button"
+        type="button"
+        aria-label="Recenter 3D model"
+        title="Recenter view"
+        onClick={() => controlsRef.current?.reset()}
+      >
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 24 24"
+          width="20"
+          height="20"
+          fill="currentColor"
+        >
+          <path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm8.94 3A8.99 8.99 0 0 0 13 3.06V1h-2v2.06A8.99 8.99 0 0 0 3.06 11H1v2h2.06A8.99 8.99 0 0 0 11 20.94V23h2v-2.06A8.99 8.99 0 0 0 20.94 13H23v-2h-2.06ZM12 19a7 7 0 1 1 0-14 7 7 0 0 1 0 14Z" />
+        </svg>
+      </button>
     </div>
   );
 }
