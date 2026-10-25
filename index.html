@@ -1080,6 +1080,7 @@
             class="switch-button switch-button-left"
             id="previous-view"
             type="button"
+            hidden
             aria-label="Show research paper"
             title="Show research paper"
           >
@@ -1207,6 +1208,8 @@
         nextViewButton.setAttribute('aria-label', 'Show research paper');
         previousViewButton.title = 'Show research paper';
         nextViewButton.title = 'Show research paper';
+        previousViewButton.hidden = true;
+        nextViewButton.hidden = false;
       }
 
       function showPaper() {
@@ -1225,6 +1228,8 @@
         nextViewButton.setAttribute('aria-label', `Return to View ${activeView + 1}`);
         previousViewButton.title = `Return to View ${activeView + 1}`;
         nextViewButton.title = `Return to View ${activeView + 1}`;
+        previousViewButton.hidden = false;
+        nextViewButton.hidden = true;
       }
 
       function togglePaper() {
@@ -1243,7 +1248,6 @@
         togglePaper();
         document.querySelector('.feature-panel').scrollIntoView({ behavior: 'smooth' });
       });
-      showPaper();
       window.setTimeout(() => {
         modelLoadError.hidden = !!modelPanel.querySelector('.model-viewer');
       }, 3000);
