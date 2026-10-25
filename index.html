@@ -997,7 +997,8 @@
           A conceptual design for a space settlement targeting research on the Jovian and Saturnian moons.
         </p>
         <button class="outline-button" id="open-paper" type="button">
-          Some Context <span aria-hidden="true">↓</span>
+          <span id="open-paper-label">Read abstract</span>
+          <span id="open-paper-arrow" aria-hidden="true">↓</span>
         </button>
       </section>
 
@@ -1023,11 +1024,24 @@
 
             <h3>Abstract</h3>
             <p>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod
-              tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-              quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-              consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-              cillum dolore eu fugiat nulla pariatur.
+              Project Mithila introduces a conceptual space settlement design for an orbital research
+              settlement located within the Jovian lunar system, targeting an ideal lifespan
+              of 50 years. The station serves as a long-term scientific harbor tasked with the systematic
+              exploration of the Jovian and Saturnian moons, with primary focus on the astrobiological
+              assessment of subsurface oceans on Europa, Titan, Callisto and Enceladus. To overcome the
+              extreme constraints of the outer solar system, namely the powerful Jovian magnetosphere
+              and lack of solar radiation, Project Mithila will utilize arrays of radiation-absorbing
+              wings. These wings will be designed to absorb high-energy electrons, and utilize the
+              Lorentz force to5 generate mechanical electricity that can be allocated to specific
+              areas of the settlement. The settlement will involve a Stanford torus that rotates around
+              the cylindrical hull of the settlement, designed to generate artificial gravity via
+              centrifugal force while not impeding human survival. It will also implement an
+              Environmental Control and Life Support System (ECLSS), paired with active electromagnetic
+              deflection and a multi-meter passive mass shield to protect the crew from residual Jovian
+              radiation. This writeup details the structural engineering, rotational dynamics,
+              electrodynamic power generation metrics, and logistical architecture required to operate
+              Project Mithila.
+
             </p>
 
             <h3>Introduction</h3>
@@ -1175,6 +1189,8 @@
       function showView(index) {
         activeView = (index + views.length) % views.length;
         showingPaper = false;
+        document.getElementById('open-paper-label').textContent = 'Read abstract';
+        document.getElementById('open-paper-arrow').textContent = '↓';
         const view = views[activeView];
         modelPanel.hidden = false;
         paperPanel.hidden = true;
@@ -1195,6 +1211,8 @@
 
       function showPaper() {
         showingPaper = true;
+        document.getElementById('open-paper-label').textContent = 'View 3D model';
+        document.getElementById('open-paper-arrow').textContent = '↑';
         modelPanel.hidden = true;
         modelLoadError.hidden = true;
         paperPanel.hidden = false;
@@ -1222,9 +1240,10 @@
       previousViewButton.addEventListener('click', togglePaper);
       nextViewButton.addEventListener('click', togglePaper);
       openPaperButton.addEventListener('click', () => {
-        showPaper();
+        togglePaper();
         document.querySelector('.feature-panel').scrollIntoView({ behavior: 'smooth' });
       });
+      showPaper();
       window.setTimeout(() => {
         modelLoadError.hidden = !!modelPanel.querySelector('.model-viewer');
       }, 3000);
